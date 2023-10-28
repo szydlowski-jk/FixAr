@@ -1,22 +1,41 @@
-﻿// Comment out that line if you don't want to use Int64 conversion when multiplying 
+﻿/*
+ * Comment out that line if you don't want to use Int64 conversion when multiplying
+ */ 
 #define FIXAR_MULTIPLY_USING_INT64
-// Comment out that line if you don't want to use Int64 conversion when dividing 
+/*
+ * Comment out that line if you don't want to use Int64 conversion when dividing
+ */ 
 #define FIXAR_DIVIDE_USING_INT64
 
 namespace FixAr;
 
 public struct Unit
 {
+    /*
+     * If FIXAR_DIVIDE_USING_INT64 is commented out division
+     * will fail if FIX_POINT_UNIT > 65535
+     */
     private static readonly int FIX_POINT_UNIT = 512;
     private Int32 _Value;
 
     #region Conversions
+
+    public Unit(Unit other)
+    {
+        _Value = other._Value;
+    }
+    
     public static implicit operator Unit(int value)
     {
         return new Unit {_Value = value * FIX_POINT_UNIT};
     }
 
     public static implicit operator Unit(float value)
+    {
+        return new Unit {_Value = (int)(value * FIX_POINT_UNIT)};
+    }
+
+    public static implicit operator Unit(double value)
     {
         return new Unit {_Value = (int)(value * FIX_POINT_UNIT)};
     }
@@ -62,7 +81,20 @@ public struct Unit
     {
 #if FIXAR_DIVIDE_USING_INT64
         return new Unit {_Value = (Int32)((Int64)a._Value * FIX_POINT_UNIT / b._Value)};
-#else // FIXAR_DIVIDE_USING_INT64         
+#else // FIXAR_DIVIDE_USING_INT64
+        // This division does not use long but in exchange for loss of precision
+        UInt32 reciprocal = 1;
+        Console.WriteLine($"{reciprocal.ToString()} | {reciprocal.ToString("X")}");
+        reciprocal *= (UInt32)(FIX_POINT_UNIT * FIX_POINT_UNIT);
+        // reciprocal <<= 31; // loss of precision comes, it should be 1 << 32 but it would use long
+        Console.WriteLine($"{reciprocal.ToString()} | {reciprocal.ToString("X")}");
+        reciprocal = (UInt32) (reciprocal / b._Value);
+        Console.WriteLine($"{reciprocal.ToString()} | {reciprocal.ToString("X")}");
+
+        Int32 result = (Int32)(a._Value * reciprocal / FIX_POINT_UNIT);
+        Console.WriteLine($"{result.ToString()} | {result.ToString("X")}");
+
+        return new Unit {_Value = (result << 0)};
 #endif // FIXAR_DIVIDE_USING_INT64
     }
     

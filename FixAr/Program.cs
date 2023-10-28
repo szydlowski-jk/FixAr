@@ -6,9 +6,9 @@ Console.WriteLine("----[ FixAr Tests start ]----");
 
 Unit a = 20f;
 Unit b = 2.5f;
-var result = a / b;
+Unit c = b;
+var result = a / c;
 
 Console.WriteLine(a.Debug());
 Console.WriteLine(b.Debug());
-Console.WriteLine(result);
 Console.WriteLine(result.Debug());
