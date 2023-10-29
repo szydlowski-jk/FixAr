@@ -16,6 +16,8 @@ public struct Unit
      * will fail if FIX_POINT_UNIT > 65535
      */
     private static readonly int FIX_POINT_UNIT = 512;
+    public static readonly int MAX_FRACTION_VALUE = FIX_POINT_UNIT;
+    public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT; 
     private Int32 _Value;
 
     #region Conversions
