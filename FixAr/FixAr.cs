@@ -1,4 +1,6 @@
-﻿/*
+﻿#define SinV2
+
+/*
  * Comment out that line if you don't want to use Int64 conversion when multiplying
  */ 
 #define FIXAR_MULTIPLY_USING_INT64
@@ -15,9 +17,10 @@ public struct Unit
      * If FIXAR_DIVIDE_USING_INT64 is commented out division
      * will fail if FIX_POINT_UNIT > 65535
      */
-    private static readonly int FIX_POINT_UNIT = 512;
+    // private static readonly int FIX_POINT_UNIT = 512;
+    private static readonly int FIX_POINT_UNIT = 65535;
     public static readonly int MAX_FRACTION_VALUE = FIX_POINT_UNIT;
-    public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT; 
+    public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT;
     private Int32 _Value;
 
     #region Conversions
@@ -26,7 +29,7 @@ public struct Unit
     {
         _Value = other._Value;
     }
-    
+
     public static implicit operator Unit(int value)
     {
         return new Unit {_Value = value * FIX_POINT_UNIT};
@@ -34,19 +37,33 @@ public struct Unit
 
     public static implicit operator Unit(float value)
     {
-        return new Unit {_Value = (int)(value * FIX_POINT_UNIT)};
+        return new Unit {_Value = (int) (value * FIX_POINT_UNIT)};
     }
 
     public static implicit operator Unit(double value)
     {
-        return new Unit {_Value = (int)(value * FIX_POINT_UNIT)};
+        return new Unit {_Value = (int) (value * FIX_POINT_UNIT)};
     }
+
     #endregion
-    
+
     #region Operations
+
+    #region Basic Operations
+
+    public static Unit operator +(Unit a)
+    {
+        return a;
+    }
+
     public static Unit operator +(Unit a, Unit b)
     {
         return new Unit {_Value = a._Value + b._Value};
+    }
+
+    public static Unit operator -(Unit a)
+    {
+        return new Unit {_Value = -a._Value};
     }
 
     public static Unit operator -(Unit a, Unit b)
@@ -58,7 +75,7 @@ public struct Unit
     {
 
 #if FIXAR_MULTIPLY_USING_INT64
-        return new Unit { _Value = (Int32) ((Int64) a._Value * b._Value / FIX_POINT_UNIT)};
+        return new Unit {_Value = (Int32) ((Int64) a._Value * b._Value / FIX_POINT_UNIT)};
 #else // FIXAR_MULTIPLY_USING_INT64
         Int32 intPartA = a._Value / FIX_POINT_UNIT;
         Int32 intPartB = b._Value / FIX_POINT_UNIT;
@@ -78,11 +95,11 @@ public struct Unit
         return new Unit { _Value = result };
 #endif // FIXAR_MULTIPLY_USING_INT64
     }
-    
+
     public static Unit operator /(Unit a, Unit b)
     {
 #if FIXAR_DIVIDE_USING_INT64
-        return new Unit {_Value = (Int32)((Int64)a._Value * FIX_POINT_UNIT / b._Value)};
+        return new Unit {_Value = (Int32) ((Int64) a._Value * FIX_POINT_UNIT / b._Value)};
 #else // FIXAR_DIVIDE_USING_INT64
         // This division does not use long but in exchange for loss of precision
         UInt32 reciprocal = 1;
@@ -99,7 +116,125 @@ public struct Unit
         return new Unit {_Value = (result << 0)};
 #endif // FIXAR_DIVIDE_USING_INT64
     }
+
+    public static Unit operator %(Unit a, Unit b)
+    {
+        return new Unit {_Value = a._Value % b._Value};
+    }
+
+    #endregion //Basic Operations 
+
+    #region Comparisons
+
+    public static bool operator ==(Unit a, Unit b)
+    {
+        return a._Value == b._Value;
+    }
+
+    public static bool operator !=(Unit a, Unit b)
+    {
+        return a._Value != b._Value;
+    }
+
+    public static bool operator <(Unit a, Unit b)
+    {
+        return a._Value < b._Value;
+    }
+
+    public static bool operator >(Unit a, Unit b)
+    {
+        return a._Value > b._Value;
+    }
+
+    public static bool operator <=(Unit a, Unit b)
+    {
+        return a._Value <= b._Value;
+    }
+
+    public static bool operator >=(Unit a, Unit b)
+    {
+        return a._Value >= b._Value;
+    }
+
+    #endregion // Comparisons
+
+    #region Trigonometry
+
+    public static Unit Sin(Unit radians)
+    {
+#if SinV2
+        /*
+         * Clear Bhaskara I approximation
+         *
+         *             16x(PI-x)
+         * sin x = ------------------
+         *         5*PI*PI - 4x(PI-x)
+         */
+        Unit PI = Math.PI;
+        Unit x = radians % (PI*2);
+        Int32 sign = 1;
+
+        if (x < 0)
+        {
+            x *= -1;
+            sign = -1;
+        }
+        
+        if (x > PI)
+        {
+            x -= PI;
+            sign *= -1;
+        }
+        
+        Unit PIx = (PI - x);
+        Unit top = 16 * x * PIx;
+        Unit bot = 5 * PI * PI - 4 * x * PIx;
+
+        return sign * (top / bot);
+
+#else // #if SinV2
+        // For now using tinyphysicsengine implementation, needs tests when done
+        Int32 sign = 1;
     
+        if (radians < 0)
+        {
+            radians *= -1;
+            sign = -1;
+        }
+    
+        float x = 1.2f;
+        x = x % 2;
+    
+        radians %= FIX_POINT_UNIT;
+
+        if (radians > FIX_POINT_UNIT / 2)
+        {
+            radians -= FIX_POINT_UNIT / 2;
+            sign *= -1;
+        }
+
+        int tmp = ((Unit)FIX_POINT_UNIT - 2 * radians)._Value;
+        Unit UPI2 = 9.8696044 * FIX_POINT_UNIT;
+
+        int PI2 = UPI2._Value;
+        int rad = radians._Value;
+        
+        return new Unit
+            {
+            _Value = sign * ((( 32 * rad * PI2 ) / FIX_POINT_UNIT) * tmp) /
+                     ((PI2 * (5 * FIX_POINT_UNIT - (8 * rad * tmp) /
+                             FIX_POINT_UNIT)) / FIX_POINT_UNIT)
+        };
+#endif // if !SinV2
+    }
+
+    public static Unit Cos(Unit radians)
+    {
+        return Sin(radians + Math.PI / 2);
+    }
+
+    #endregion // Trigonometry
+
     #endregion
 
     #region Helpers
