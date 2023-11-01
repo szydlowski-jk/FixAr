@@ -1,6 +1,4 @@
-﻿#define SinV2
-
-/*
+﻿/*
  * Comment out that line if you don't want to use Int64 conversion when multiplying
  */ 
 #define FIXAR_MULTIPLY_USING_INT64
@@ -21,6 +19,10 @@ public struct Unit
     private static readonly int FIX_POINT_UNIT = 65535;
     public static readonly int MAX_FRACTION_VALUE = FIX_POINT_UNIT;
     public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT;
+    public static readonly int MIN_INTEGER_VALUE = Int32.MinValue / FIX_POINT_UNIT;
+
+    public static readonly Unit PI = Math.PI;
+    public static readonly Unit DEG_TO_RAD = 180 / Math.PI;
     private Int32 _Value;
 
     #region Conversions
@@ -162,7 +164,6 @@ public struct Unit
 
     public static Unit Sin(Unit radians)
     {
-#if SinV2
         /*
          * Clear Bhaskara I approximation
          *
@@ -170,7 +171,6 @@ public struct Unit
          * sin x = ------------------
          *         5*PI*PI - 4x(PI-x)
          */
-        Unit PI = Math.PI;
         Unit x = radians % (PI*2);
         Int32 sign = 1;
 
@@ -191,48 +191,36 @@ public struct Unit
         Unit bot = 5 * PI * PI - 4 * x * PIx;
 
         return sign * (top / bot);
-
-#else // #if SinV2
-        // For now using tinyphysicsengine implementation, needs tests when done
-        Int32 sign = 1;
-    
-        if (radians < 0)
-        {
-            radians *= -1;
-            sign = -1;
-        }
-    
-        float x = 1.2f;
-        x = x % 2;
-    
-        radians %= FIX_POINT_UNIT;
-
-        if (radians > FIX_POINT_UNIT / 2)
-        {
-            radians -= FIX_POINT_UNIT / 2;
-            sign *= -1;
-        }
-
-        int tmp = ((Unit)FIX_POINT_UNIT - 2 * radians)._Value;
-        Unit UPI2 = 9.8696044 * FIX_POINT_UNIT;
-
-        int PI2 = UPI2._Value;
-        int rad = radians._Value;
-        
-        return new Unit
-            {
-            _Value = sign * ((( 32 * rad * PI2 ) / FIX_POINT_UNIT) * tmp) /
-                     ((PI2 * (5 * FIX_POINT_UNIT - (8 * rad * tmp) /
-                             FIX_POINT_UNIT)) / FIX_POINT_UNIT)
-        };
-#endif // if !SinV2
     }
 
     public static Unit Cos(Unit radians)
     {
-        return Sin(radians + Math.PI / 2);
+        return Sin(radians + PI / 2);
     }
 
+    public static Unit Tan(Unit radians)
+    {
+        Unit cos = Cos(radians);
+        if (cos == 0)
+        {
+            return new Unit {_Value = Int32.MaxValue};
+        }
+        return Sin(radians) / cos;
+    }
+
+    // Polynomial values for ATan
+    private static readonly Unit ATAN_PI_4 = PI / 4;
+    private static readonly Unit ATAN_A = 0.0776509570923569;
+    private static readonly Unit ATAN_B = -0.287434475393028;
+    private static readonly Unit ATAN_C = (ATAN_PI_4 - ATAN_A - ATAN_B);
+    
+    public static Unit ATan(Unit radians)
+    {
+        // Fast polynomial approximation
+        Unit radians2 = radians * radians;
+        return ((ATAN_A * radians2 + ATAN_B) * radians2 + ATAN_C) * radians;
+    }
+    
     #endregion // Trigonometry
 
     #endregion

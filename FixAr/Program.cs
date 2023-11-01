@@ -3,7 +3,10 @@
 using FixAr;
 
 Console.WriteLine("----[ FixAr Tests start ]----");
-Console.WriteLine($"MAX FRAC {Unit.MAX_FRACTION_VALUE} | MAX INT {Unit.MAX_INTEGER_VALUE}");
+Console.WriteLine($"FRAC Range 0 - {Unit.MAX_FRACTION_VALUE} | INT Range {Unit.MIN_INTEGER_VALUE} - {Unit.MAX_INTEGER_VALUE}");
+Console.WriteLine($"PI = {Unit.PI} | DEG_TO_RAD = {Unit.DEG_TO_RAD}");
+Console.WriteLine("-----------------------------");
+
 
 Unit a = 9.8f;
 Unit b = 8;
@@ -16,7 +19,28 @@ Console.WriteLine(result.Debug());
 // TestFreeFall(60);
 // TestComparisons();
 // TestModulo();
- TestCirclePoints(3);
+// TestCirclePoints(3);
+TestTan(12);
+
+void TestTan(int points)
+{
+    Console.WriteLine("----[ Tan / Atan test ]----");
+    Console.WriteLine($"Points: {points}, angle: {360.0 / points}, Unit angle: {(Unit)360 / points}");
+    float degToRad = 57.2958f;
+    
+    float fAngle = 360.0f / points;
+    Unit uAngle = (Unit) 360 / points;
+
+    float fActualAngle = fAngle / degToRad;
+    Unit uActualAngle = uAngle / degToRad;
+    
+    for (int i = -points*2; i < points*2; i++)
+    {
+        Console.WriteLine($"[{i:00}] [{fActualAngle * i}] x: {MathF.Tan(fActualAngle * i):F8} \ty: {MathF.Atan(fActualAngle * i):F8} \t\t[{(Unit)fActualAngle * i}] x: {Unit.Tan(fActualAngle * i)} \ty: {Unit.ATan(fActualAngle * i)}");
+        // Console.WriteLine($"[{i:00}] [{fActualAngle * i}] x: {MathF.Tan(fActualAngle * i):F8} \ty: {MathF.Atan(fActualAngle * i):F8} \t\t[{(Unit) fActualAngle * i}]");// x: {Unit.Tan(fActualAngle * i)} \ty: {Unit.ATan(fActualAngle * i)}");
+    }
+    
+}
 
 void TestCirclePoints(int points)
 {
