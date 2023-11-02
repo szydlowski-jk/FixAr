@@ -20,7 +20,20 @@ Console.WriteLine(result.Debug());
 // TestComparisons();
 // TestModulo();
 // TestCirclePoints(3);
-TestTan(12);
+// TestTan(12);
+TestAtan2();
+
+void TestAtan2()
+{
+    float x = -00f;
+    float y = 100f;
+    
+    Unit ux = x;
+    Unit uy = y;
+
+    Console.WriteLine("----[ Atan2 test ]----");
+    Console.WriteLine($"{Math.Atan2(y, x) } | {Unit.ATan2(uy, ux)}");
+}
 
 void TestTan(int points)
 {

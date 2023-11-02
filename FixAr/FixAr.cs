@@ -2,6 +2,7 @@
  * Comment out that line if you don't want to use Int64 conversion when multiplying
  */ 
 #define FIXAR_MULTIPLY_USING_INT64
+
 /*
  * Comment out that line if you don't want to use Int64 conversion when dividing
  */ 
@@ -124,6 +125,16 @@ public struct Unit
         return new Unit {_Value = a._Value % b._Value};
     }
 
+    public static Unit Sign(Unit a)
+    {
+        return new Unit(Int32.Sign(a._Value));
+    }
+    
+    public static Unit Abs(Unit a)
+    {
+        return new Unit {_Value = Math.Abs(a._Value)};
+    }
+    
     #endregion //Basic Operations 
 
     #region Comparisons
@@ -207,7 +218,7 @@ public struct Unit
         }
         return Sin(radians) / cos;
     }
-
+    
     // Polynomial values for ATan
     private static readonly Unit ATAN_PI_4 = PI / 4;
     private static readonly Unit ATAN_A = 0.0776509570923569;
@@ -216,11 +227,49 @@ public struct Unit
     
     public static Unit ATan(Unit radians)
     {
+        if (Abs(radians) > 1)
+        {
+            return Sign(radians) * (PI / 2 - ATan(1 / Abs(radians)));
+        }
+        
         // Fast polynomial approximation
         Unit radians2 = radians * radians;
         return ((ATAN_A * radians2 + ATAN_B) * radians2 + ATAN_C) * radians;
     }
     
+    public static Unit ATan2(Unit y, Unit x)
+    {
+        if (x > 0)
+        {
+            return ATan(y / x);
+        }
+        else if (x < 0)
+        {
+            if (y >= 0)
+            {
+                return ATan(y / x) + PI;
+            }
+            else
+            {
+                return ATan(y / x) - PI;
+            }
+        }
+        else
+        {
+            if (y > 0)
+            {
+                return PI / 2;
+            }
+            else if (y < 0)
+            {
+                return -(PI / 2);
+            }
+            else
+            {
+                return Unit.MAX_INTEGER_VALUE;
+            }
+        }
+    }    
     #endregion // Trigonometry
 
     #endregion
