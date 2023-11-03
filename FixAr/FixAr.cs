@@ -18,6 +18,7 @@ public struct Unit
      */
     // private static readonly int FIX_POINT_UNIT = 512;
     private static readonly int FIX_POINT_UNIT = 65535;
+    // private static readonly int FIX_POINT_UNIT = 10000;
     public static readonly int MAX_FRACTION_VALUE = FIX_POINT_UNIT;
     public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT;
     public static readonly int MIN_INTEGER_VALUE = Int32.MinValue / FIX_POINT_UNIT;
@@ -48,6 +49,26 @@ public struct Unit
         return new Unit {_Value = (int) (value * FIX_POINT_UNIT)};
     }
 
+    public static explicit operator int(Unit a)
+    {
+        return a._Value / FIX_POINT_UNIT;
+    }
+
+    public static explicit operator float(Unit a)
+    {
+        return a._Value / (float) FIX_POINT_UNIT;
+    }
+    
+    public int ToInt()
+    {
+        return (int) this;
+    }
+
+    public float ToFloat()
+    {
+        return (float) this;
+    }
+    
     #endregion
 
     #region Operations
@@ -133,6 +154,45 @@ public struct Unit
     public static Unit Abs(Unit a)
     {
         return new Unit {_Value = Math.Abs(a._Value)};
+    }
+
+    public static Unit Min(Unit a, Unit b)
+    {
+        return new Unit {_Value = Math.Min(a._Value, b._Value)};
+    }
+
+    public static Unit Max(Unit a, Unit b)
+    {
+        return new Unit {_Value = Math.Max(a._Value, b._Value)};
+    }
+    
+    public static Unit Floor(Unit a)
+    {
+        return new Unit {_Value = a._Value / FIX_POINT_UNIT * FIX_POINT_UNIT};
+    }
+
+    public static Unit Ceiling(Unit a)
+    {
+        return FractionalPart(a) == 0 ? a : Floor(a) + 1; 
+        //
+        // if (FractionalPart(a) == 0)
+        // {
+        //     return a;
+        // }
+        // else
+        // {
+        //     return Floor(a) + 1;
+        // }
+    }
+    
+    public static Unit IntegerPart(Unit a)
+    {
+        return Floor(a);
+    }
+
+    public static Unit FractionalPart(Unit a)
+    {
+        return a - IntegerPart(a);
     }
     
     #endregion //Basic Operations 
@@ -272,7 +332,7 @@ public struct Unit
     }    
     #endregion // Trigonometry
 
-    #endregion
+    #endregion // Operations
 
     #region Helpers
     public override string ToString()
@@ -280,21 +340,25 @@ public struct Unit
         return $"{((float)_Value / FIX_POINT_UNIT)}";
     }
 
-    public string Debug()
-    {
-        return $"Unit DBG: {this.ToString()} | Value = {_Value} | {ToHex()} | {ToBinary()}";
-    }
-
-    public string ToBinary()
+    public string ToStringBinary()
     {
         return Convert.ToString(_Value, 2);
     }
 
-    public string ToHex()
+    public string ToStringHex()
     {
         return _Value.ToString("X");
     }
-    #endregion
+    #endregion // Helpers
+
+    #region Debug
+
+    public string Debug()
+    {
+        return $"Unit DBG: {this.ToString()} | Value = {_Value} | {ToStringHex()} | {ToStringBinary()}";
+    }
+
+    #endregion // D e b u g
 }
 
 public struct UnitVec2

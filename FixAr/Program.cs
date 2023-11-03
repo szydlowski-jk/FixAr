@@ -16,17 +16,39 @@ Console.WriteLine(a.Debug());
 Console.WriteLine(b.Debug());
 Console.WriteLine(result.Debug());
 
+int x = (int)a;
+int y = a.ToInt();
+float fa = (float) a;
+float fb = a.ToFloat();
+
+Console.WriteLine($"{a} {x} {y} {fa} {fb}");
+
 // TestFreeFall(60);
 // TestComparisons();
 // TestModulo();
 // TestCirclePoints(3);
 // TestTan(12);
-TestAtan2();
+// TestAtan2();
+TestRounding();
+
+void TestRounding()
+{
+    Console.WriteLine("----[ Rounding test ]----");
+    Unit x = 123.456;
+    Unit y = -123.456;
+    Unit z = 123;
+    
+    Console.WriteLine($"{x} => {Unit.IntegerPart(x)} + {Unit.FractionalPart(x)} | {Unit.Floor(x)} | {Unit.Ceiling(x)}");
+    Console.WriteLine($"{y} => {Unit.IntegerPart(y)} + {Unit.FractionalPart(y)} | {Unit.Floor(y)} | {Unit.Ceiling(y)}");
+    Console.WriteLine($"{z} => {Unit.IntegerPart(z)} + {Unit.FractionalPart(z)} | {Unit.Floor(z)} | {Unit.Ceiling(z)}");
+    Console.WriteLine($"Min {Unit.Min(x, z)} Max {Unit.Max(x, z)}");
+    Console.WriteLine($"Min {Unit.Min(y, z)} Max {Unit.Max(y, z)}");
+}
 
 void TestAtan2()
 {
-    float x = -00f;
-    float y = 100f;
+    float x = -900f;
+    float y = 600f;
     
     Unit ux = x;
     Unit uy = y;
