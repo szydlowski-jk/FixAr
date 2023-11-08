@@ -16,8 +16,8 @@ public struct Unit
      * If FIXAR_DIVIDE_USING_INT64 is commented out division
      * will fail if FIX_POINT_UNIT > 65535
      */
-    // private static readonly int FIX_POINT_UNIT = 512;
-    private static readonly int FIX_POINT_UNIT = 65535;
+    private static readonly int FIX_POINT_UNIT = 512;
+    // private static readonly int FIX_POINT_UNIT = 65535;
     // private static readonly int FIX_POINT_UNIT = 10000;
     public static readonly int MAX_FRACTION_VALUE = FIX_POINT_UNIT;
     public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT;
@@ -145,6 +145,9 @@ public struct Unit
     {
         return new Unit {_Value = a._Value % b._Value};
     }
+    #endregion //Basic Operations 
+
+    #region Math
 
     public static Unit Sign(Unit a)
     {
@@ -174,15 +177,6 @@ public struct Unit
     public static Unit Ceiling(Unit a)
     {
         return FractionalPart(a) == 0 ? a : Floor(a) + 1; 
-        //
-        // if (FractionalPart(a) == 0)
-        // {
-        //     return a;
-        // }
-        // else
-        // {
-        //     return Floor(a) + 1;
-        // }
     }
     
     public static Unit IntegerPart(Unit a)
@@ -194,8 +188,45 @@ public struct Unit
     {
         return a - IntegerPart(a);
     }
+
+    public static Unit Sqrt(Unit x)
+    {
+        // TODO: Not working correctly, calculates correct sqrt but from int value not Unit
+        // TODO: For example SQRT(4) = 0.087 because 4*512=2048 and SQRT(2048)=45 which is 0.087...
+        Int32 sign = 1;
+        
+        if (x < 0)
+        {
+            sign = -1;
+            x *= -1;
+        }
+
+        UInt32 result = 0;
+        UInt32 a = (UInt32)x._Value;
+        UInt32 b = 1u << 30;
+
+        while (b > a)
+        {
+            b >>= 2;
+        }
+
+        while (b != 0)
+        {
+            if (a >= result + b)
+            {
+                a -= result + b;
+                result = result + 2 * b;
+            }
+
+            b >>= 2;
+            result >>= 1;
+        }
+
+        return new Unit {_Value = (Int32)result * sign};
+    }
     
-    #endregion //Basic Operations 
+    #endregion // Math
+
 
     #region Comparisons
 

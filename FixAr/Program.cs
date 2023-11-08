@@ -29,7 +29,31 @@ Console.WriteLine($"{a} {x} {y} {fa} {fb}");
 // TestCirclePoints(3);
 // TestTan(12);
 // TestAtan2();
-TestRounding();
+// TestRounding();
+TestSqrt();
+
+void TestSqrt()
+{
+    Console.WriteLine("----[ Sqrt test ]----");
+    Unit ux = 4;
+    float fx = 4f;
+    Console.WriteLine($"U sqrt({ux.Debug()})={Unit.Sqrt(ux).Debug()} |F sqrt({fx})={MathF.Sqrt(fx)}");
+    // ux = 144;
+    // fx = 144f;
+    // Console.WriteLine($"U sqrt({ux})={Unit.Sqrt(ux)} |F sqrt({fx})={MathF.Sqrt(fx)}");
+    // ux = 27;
+    // fx = 27f;
+    // Console.WriteLine($"U sqrt({ux})={Unit.Sqrt(ux)} |F sqrt({fx})={MathF.Sqrt(fx)}");
+    // ux = 2.67;
+    // fx = 2.67f;
+    // Console.WriteLine($"U sqrt({ux})={Unit.Sqrt(ux)} |F sqrt({fx})={MathF.Sqrt(fx)}");
+    // ux = -4;
+    // fx = -4f;
+    // Console.WriteLine($"U sqrt({ux})={Unit.Sqrt(ux)} |F sqrt({fx})={MathF.Sqrt(fx)}");
+    // ux = 4096;
+    // fx = 4096f;
+    // Console.WriteLine($"U sqrt({ux})={Unit.Sqrt(ux)} |F sqrt({fx})={MathF.Sqrt(fx)}");
+}
 
 void TestRounding()
 {
