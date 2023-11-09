@@ -16,12 +16,14 @@ public struct Unit
      * If FIXAR_DIVIDE_USING_INT64 is commented out division
      * will fail if FIX_POINT_UNIT > 65535
      */
-    private static readonly int FIX_POINT_UNIT = 512;
-    // private static readonly int FIX_POINT_UNIT = 65535;
-    // private static readonly int FIX_POINT_UNIT = 10000;
-    public static readonly int MAX_FRACTION_VALUE = FIX_POINT_UNIT;
-    public static readonly int MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT;
-    public static readonly int MIN_INTEGER_VALUE = Int32.MinValue / FIX_POINT_UNIT;
+    private static readonly Int32 FIX_POINT_UNIT = 512;
+    // private static readonly Int32 FIX_POINT_UNIT = 65535;
+    // private static readonly Int32 FIX_POINT_UNIT = 10000;
+    private static readonly Int32 SQRT_MAX_ITERATIONS = 10;
+    
+    public static readonly Int32 MAX_FRACTION_VALUE = FIX_POINT_UNIT;
+    public static readonly Int32 MAX_INTEGER_VALUE = Int32.MaxValue / FIX_POINT_UNIT;
+    public static readonly Int32 MIN_INTEGER_VALUE = Int32.MinValue / FIX_POINT_UNIT;
 
     public static readonly Unit PI = Math.PI;
     public static readonly Unit DEG_TO_RAD = 180 / Math.PI;
@@ -189,10 +191,25 @@ public struct Unit
         return a - IntegerPart(a);
     }
 
+    // [Sunshine Fixed point article - Sqrt](http://www.sunshine2k.de/articles/coding/fp/sunfp.html#ch81)
     public static Unit Sqrt(Unit x)
     {
-        // TODO: Not working correctly, calculates correct sqrt but from int value not Unit
-        // TODO: For example SQRT(4) = 0.087 because 4*512=2048 and SQRT(2048)=45 which is 0.087...
+        Unit result = 1;
+        Unit error = 0.001f;
+
+        Int32 iter = 0;
+        while ((iter++ < SQRT_MAX_ITERATIONS) && (Unit.Abs((result * result) - x) >= error))
+        {
+            result = 0.5f * (result + (x / result));
+        }
+
+        return result;
+    }
+    
+    // Faster implementation but only returns whole integer numbers
+    // e.g. sqrt(27) = 5.196152, this function will return 5
+    public static Unit SqrtFast(Unit x)
+    {
         Int32 sign = 1;
         
         if (x < 0)
@@ -202,7 +219,7 @@ public struct Unit
         }
 
         UInt32 result = 0;
-        UInt32 a = (UInt32)x._Value;
+        UInt32 a = (UInt32)x.ToInt();
         UInt32 b = 1u << 30;
 
         while (b > a)
@@ -222,11 +239,10 @@ public struct Unit
             result >>= 1;
         }
 
-        return new Unit {_Value = (Int32)result * sign};
+        return new Unit((Int32)result * sign);
     }
     
     #endregion // Math
-
 
     #region Comparisons
 
