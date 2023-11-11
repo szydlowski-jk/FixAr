@@ -3,6 +3,8 @@
  */ 
 #define FIXAR_MULTIPLY_USING_INT64
 
+using System.Runtime.CompilerServices;
+
 /*
  * Comment out that line if you don't want to use Int64 conversion when dividing
  */ 
@@ -412,6 +414,136 @@ public struct UnitVec2
 {
     public Unit x;
     public Unit y;
+
+    public UnitVec2(UnitVec2 a)
+    {
+        this.x = a.x;
+        this.y = a.y;
+    }
+    
+    public UnitVec2(Unit x, Unit y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void Set(Unit x, Unit y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    #region Operators
+
+    public static UnitVec2 operator +(UnitVec2 a, UnitVec2 b)
+    {
+        return new UnitVec2(a.x + b.x, a.y + b.y);
+    }
+
+    public static UnitVec2 operator +(UnitVec2 a, Unit b)
+    {
+        return new UnitVec2(a.x + b, a.y + b);
+    }
+
+    public static UnitVec2 operator +(UnitVec2 a)
+    {
+        return a;
+    }
+    
+    public static UnitVec2 operator -(UnitVec2 a, UnitVec2 b)
+    {
+        return new UnitVec2(a.x - b.x, a.y - b.y);
+    }
+    
+    public static UnitVec2 operator -(UnitVec2 a, Unit b)
+    {
+        return new UnitVec2(a.x - b, a.y - b);
+    }
+
+    public static UnitVec2 operator -(UnitVec2 a)
+    {
+        return new UnitVec2(-a.x, -a.y);
+    }
+
+    public static UnitVec2 operator *(UnitVec2 a, Unit b)
+    {
+        return new UnitVec2(a.x * b, a.y * b);
+    }
+    
+    public static UnitVec2 operator /(UnitVec2 a, Unit b)
+    {
+        return new UnitVec2(a.x / b, a.y / b);
+    }
+    #endregion // Operators
+
+    #region Comparisons
+
+    public static bool operator ==(UnitVec2 a, UnitVec2 b)
+    {
+        return (a.x == b.x) && (a.y == b.y);
+    }
+    
+    public static bool operator !=(UnitVec2 a, UnitVec2 b)
+    {
+        return (a.x != b.x) || (a.y != b.y);
+    }
+
+    #endregion // Comparisons
+
+    #region Math
+
+    public static Unit Dot(UnitVec2 a, UnitVec2 b)
+    {
+        return new Unit(a.x * b.x + a.y * b.y);
+    }
+
+    public static Unit Cross(UnitVec2 a, UnitVec2 b)
+    {
+        return new Unit(a.x * b.y - a.y * b.x);
+    }
+
+    public Unit Magnitude()
+    {
+        return Unit.Sqrt(x * x + y * y);
+    }
+
+    public Unit MagnitudeSqr()
+    {
+        return x * x + y * y;
+    }
+
+    public static UnitVec2 Normalized(UnitVec2 a)
+    {
+        return new UnitVec2(a / a.Magnitude());
+    }
+
+    public void Normalize()
+    {
+        this = UnitVec2.Normalized(this);
+    }
+
+    public static Unit Distance(UnitVec2 a, UnitVec2 b)
+    {
+        return (a - b).Magnitude();
+    }
+
+    public static UnitVec2 Min(UnitVec2 a, UnitVec2 b)
+    {
+        return new UnitVec2(Unit.Min(a.x, b.x), Unit.Min(a.y, b.y));
+    }
+
+    public static UnitVec2 Max(UnitVec2 a, UnitVec2 b)
+    {
+        return new UnitVec2(Unit.Max(a.x, b.x), Unit.Max(a.y, b.y));
+    }
+
+    public static UnitVec2 Lerp(UnitVec2 a, UnitVec2 b, Unit t)
+    {
+        UnitVec2 diff = b - a;
+        return a + diff * t;
+    }
+    
+    #endregion // Math
 }
 
 public struct UnitVec3
