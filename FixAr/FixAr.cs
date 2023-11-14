@@ -3,12 +3,12 @@
  */ 
 #define FIXAR_MULTIPLY_USING_INT64
 
-using System.Runtime.CompilerServices;
-
 /*
  * Comment out that line if you don't want to use Int64 conversion when dividing
  */ 
 #define FIXAR_DIVIDE_USING_INT64
+
+using System;
 
 namespace FixAr;
 
@@ -155,7 +155,7 @@ public struct Unit
 
     public static Unit Sign(Unit a)
     {
-        return new Unit(Int32.Sign(a._Value));
+        return new Unit(Math.Sign(a._Value));
     }
     
     public static Unit Abs(Unit a)
